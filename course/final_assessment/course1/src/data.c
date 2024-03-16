@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <stdbool.h>
 #include "data.h"
 #include "memory.h"
 #include "platform.h"
@@ -41,16 +41,18 @@ uint8_t my_itoa(int32_t data, uint8_t * ptr, uint32_t base){
     int32_t quotient = data;
     uint32_t remainder;
     uint8_t length = 0;
+    bool negative = false;
 
 	// Handle negative numbers
 	if (data < 0){
+        negative = true;
         *ptr++ = '-';
         start_ptr = ptr;
         length++;
-        quotient = -data; // Convert to positive
+        quotient = data * -1; // Convert to positive
 	}
-	
-	// Convert the number to the specified base
+    
+    // Convert the number to the specified base
     do {
         remainder = quotient % base;
         quotient = quotient / base;
@@ -61,32 +63,38 @@ uint8_t my_itoa(int32_t data, uint8_t * ptr, uint32_t base){
             *ptr++ = 'A' + remainder - 10;
         length++;
     } while (quotient != 0);
-	
-	// Add null terminator
-    *ptr = '\0';
-    length++;
-
-    // Reverse the string
-    my_reverse(start_ptr, length);
     
+    // Reverse the string
+    if (negative){    
+        my_reverse(start_ptr, length - 1);        
+    } else{
+        my_reverse(start_ptr, length);
+    }
+    
+    // Add null terminator
+    *(ptr + length) = '\0';
+    length++;
+	
     return length;
 }
 
 int32_t my_atoi(uint8_t * ptr, uint8_t digits, uint32_t base){
+
 	// Check for valid base range
-    if (base < 2 || base > 16)
+    if (base < 2 || base > 16){
         #ifdef VERBOSE
 		PRINTF("ERROR: Invalid base");
 		#endif
         return 0; // Invalid base
+    }
 
     // Initialize variables
     int32_t result = 0;
-    uint8_t is_negative = 0;
+    bool negative = false;
 
     // Check for negative sign
     if (*ptr == '-') {
-        is_negative = 1;
+        negative = true;
         ptr++;
         digits--;
     }
@@ -114,8 +122,8 @@ int32_t my_atoi(uint8_t * ptr, uint8_t digits, uint32_t base){
     }
 
     // Apply negative sign if necessary
-    if (is_negative)
-        result = -result;
+    if (negative)
+        result = result * -1;
 
     return result;
 }

@@ -10,11 +10,24 @@
 #*****************************************************************************
 
 # Source files needed to build this project
-SOURCES = src/data.c \
-		  src/memory.c \
-		  src/stats.c \
-		  src/main.c \
-		  src/course1.c
+ifeq ($(PLATFORM),HOST)
+	SOURCES = ./src/data.c \
+			./src/memory.c \
+			./src/stats.c \
+			./src/main.c \
+			./src/course1.c
+endif
+
+ifeq ($(PLATFORM),MSP432)
+	SOURCES = ./src/main.c \
+			./src/memory.c \
+			./src/data.c \
+			./src/course1.c \
+			./src/stats.c \
+			./src/interrupts_msp432p401r_gcc.c \
+			./src/startup_msp432p401r_gcc.c \
+			./src/system_msp432p401r.c
+endif
 
 # Include paths to build this project
 INCLUDES = -Iinclude/common \
